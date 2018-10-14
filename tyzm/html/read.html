@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> 甘肃教师学苑自动阅读器</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+ </head>
+
+ <body>
+  
+  <p align="center" ><font size="6" color="red">甘肃教师学苑文章自动阅读器 </font></p>
+  <p align="center" >
+  <button id="start" onclick = "scanning()">分析链接</button>
+  <button id="start" onclick = "reading()">开始阅读</button>
+  <button id="end" onclick = "closeRead()">停止阅读</button>
+  <div id ="num" style="height: 31px;">已阅读0篇</div>
+  </p>
+  
+  <div>
+	  <div style="float: left">
+	  <iframe src="http://rwsy.gsres.cn/wx/unreadhistory.htm" id="frame"
+		frameborder="0" marginheight="0" marginwidth="0" height="600" width=" 600px"></iframe>
+	  </div>
+	  <div  style="float: left">
+	  <iframe src="http://rwsy.gsres.cn/wx/unreadhistory.htm" id="frame1"
+		frameborder="0" marginheight="0" marginwidth="0" height="600" width="600px"></iframe>
+	  </div>
+	  	  <div  style="float: left">
+	  <iframe src="test.html" id="frame3"
+		frameborder="0" marginheight="0" marginwidth="0" height="60" width="60px"></iframe>
+	  </div>
+</div>
+<br />
+  
+
+<div style="float: right">
+
+	<a href="http://www.baidu.com">仅供学习交流，后果自负！</a>
+
+</div>
+
+ </body>
+</html>
+<script src="jquery.min.js"></script>
+<script type="text/javascript">
+var unReadUrlArr=new Array(
+"id=180413183214593240201&sid=&page=1", 
+"id=180413183111288240200&sid=&page=1", 
+"id=180413183042834240199&sid=&page=1", 
+"id=180413183029152240198&sid=&page=1", 
+"id=180411204821763240929&sid=&page=1" 
+)
+
+
+
+
+
+ var unReadUrl = 'http://rwsy.gsres.cn/wx/unreadhistory.htm';
+ var i = 0;
+ var t1;
+ function reading(){
+
+	 t1=window.setInterval(refreshCount, 1000*60*2);
+
+ }
+ 
+function scanning(){
+alert("调用java 进行解析");
+
+}
+
+function getIframeContent(){  //获取iframe中文档内容
+ var doc;
+ if (document.all){ // IE 
+  doc = document.frames["frame3"].document; 
+ }else{ // 标准
+  doc = document.getElementById("frame3").contentDocument; 
+ }
+ return doc.body.innerHtml;
+} 
+
+ function closeRead(){
+	  window.clearInterval(t1);   
+ }
+
+ function refreshCount() {
+     //获取未读url 替换变量 unReadUrlArr
+     var frame = document.getElementById('frame');
+	 console.info(i);
+	 requrl(unReadUrlArr[i])
+     i = i+1;
+	 var element = document.getElementById('num');
+	 var con = "已阅读"+i+"篇文章"
+	 element.innerHTML = unescape(con);	
+ }
+
+ function requrl(url){
+	 var frame = document.getElementById('frame1');
+     frame.src="http://rwsy.gsres.cn/wx/read.htm?"+url;
+}
+</script>

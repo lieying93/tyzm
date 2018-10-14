@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tyzm>
+    <urladdress>
+    </urladdress>
+	<teachers>
+	     <teacher>
+	       <name>王淑琴</name>
+	       <inputName>622822196703044525</inputName>
+	       <passwd>wsq0304</passwd>
+	       <loginName>gsres_iflytek_d9dd7d07a7ca9c9a5c7c33f510afddc8</loginName>
+	       <password>893b23f52c1e8eefb5e27b0e365a5ec3</password>
+	    </teacher> 
+	    <teacher>
+	       <name>李维科</name>
+	       <inputName>622822198111064513</inputName>
+	       <passwd>lwk1106</passwd>
+	       <!-- 返回的真实登录名  ,必须先登录后获取 -->
+	       <loginName>gsres_iflytek_2c471eee6665563d20102373f016c4dd</loginName>
+	       <!-- 加密后的密码可以用html页面转化 -->
+	       <password>7e993773c6570a3e1a74500bdb3d70a2</password>
+	    </teacher>
+	    <teacher>
+	       <name>马艳霞</name>
+	       <inputName>622822198503054568</inputName>
+	       <passwd>myx1985</passwd>
+	       <!-- 返回的真实登录名  ,必须先登录后获取 -->
+	       <loginName>gsres_iflytek_b92fb2422b442e31c1d8bd4c6fbb217e</loginName>
+	       <!-- 加密后的密码可以用html页面转化 -->
+	       <password>56267f48dee66f25661bd75dbb7e31ea</password>
+	    </teacher>
+	</teachers>
+</tyzm>
