@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.plaf.synth.SynthSeparatorUI;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -35,7 +39,8 @@ public class Client {
     private Teacher teacher = null;
     CloseableHttpClient client = HttpClients.createDefault();//实例化httpclient
     HttpResponse response = null;
-    
+    private static int readHistroyYema=1;
+    private static List<String> list = new ArrayList<String>();
 	public Client(Teacher teacher) {
 		super();
 		this.teacher = teacher;
@@ -163,15 +168,61 @@ public class Client {
     	System.out.println("gsjsxy-->content="+content);
     	return "";
     }
-    public String readHistory() throws Exception{
+    public String[][] readHistory(int yema) throws Exception{
     	String url = "http://rwsy.gsres.cn/wx/readhistory.htm";
+    	if(1!=yema){
+    		url=url+"?id=&page="+yema;
+    	}
     	HttpGet sLogin = new HttpGet(url);
     	execute = client.execute(sLogin );
     	String  content =EntityUtils.toString(execute.getEntity(), "utf-8");
     	System.out.println("readhistory-->content="+content);
+    	if(1==yema){
+    		//解析出一共有多少页
+       	 Pattern pattern=Pattern.compile("每页20条记录，当前第.*页");  //匹配ER_所在的所有行
+       	 Matcher math=pattern.matcher(content);
+       	 while (math.find()) {
+       		 try {
+       			Client.readHistroyYema = Integer.parseInt(math.group(0).replace("每页20条记录，当前第", "").replace("页", "").replace("1/", ""));
+   			} catch (Exception e) {
+   				System.out.println("解析页码出错");
+   			}
+       	 }
+    	}
+    	Document doc = Jsoup.parse(content);
+    	Elements liArray = doc.select("div.Main").select("ul").select("li");
+    	String[][] read = new String [liArray.size()][3];
+    	for(int i =0; i< liArray.size();i++){
+    		System.out.println("第"+(i+1)+"条已读记录:");
+    		System.out.println("标题:"+liArray.get(i).select("div.text_qishu").html());
+    		System.out.println("链接:"+liArray.get(i).select("a").attr("href"));
+    		read[i][0]=liArray.get(i).select("a").attr("href");
+    		read[i][1]=liArray.get(i).select("div.text_qishu").text();
+    		read[i][2]=liArray.get(i).select("div.datetime").text();    		
+    	}
+    	return read;
+    	
+    }
+    public String readDetails(String href,String title,String date ) throws Exception{
+    	String unReadHref = "http://rwsy.gsres.cn/wx/";
+    	//System.out.println("已读页面的地址="+unReadHref+href);
+    	HttpGet readUrl = new HttpGet(unReadHref+href);
+    	execute = client.execute(readUrl );
+    	String  content =EntityUtils.toString(execute.getEntity(), "utf-8");
+    	//System.out.println("readHistory-->content="+content);
+    	//正则表达式
+    	Pattern pattern=Pattern.compile("var chapterId = .*;");  //匹配ER_所在的所有行
+   	    Matcher math=pattern.matcher(content);
+   	    String huifuma="";
+   	    while (math.find()) {
+   	    	huifuma = math.group(0).replace("var chapterId = '", "").replace("';", "");
+   	    }
+   	    //System.out.print("标题--"+title + "  回复码--"+huifuma);
+   	    Client.list.add("标题--"+title + "  回复码--"+huifuma+ "  时间--"+date);
     	return "";
     	
     }
+    
     public String[][] unRead() throws Exception{
     	//每页20条记录,每次运行只读取首页的未读记录数,第一列是href地址,第二列是标题
     	
@@ -182,13 +233,14 @@ public class Client {
     	System.out.println("unreadhistory-->content="+content);
     	Document doc = Jsoup.parse(content);
     	Elements liArray = doc.select("div.Main").select("ul").select("li");
-    	String[][] unRead = new String [liArray.size()][2];
+    	String[][] unRead = new String [liArray.size()][3];
     	for(int i =0; i< liArray.size();i++){
     		System.out.println("第"+(i+1)+"条未读记录:");
     		System.out.println("标题:"+liArray.get(i).select("div.text_qishu").html());
     		System.out.println("链接:"+liArray.get(i).select("a").attr("href"));
     		unRead[i][0]=liArray.get(i).select("a").attr("href");
-    		unRead[i][1]=liArray.get(i).select("div.text_qishu").html();
+    		unRead[i][1]=liArray.get(i).select("div.text_qishu").text();
+    		unRead[i][2]=liArray.get(i).select("div.datetime").text();
     	}
     	return unRead;
     }
@@ -199,12 +251,13 @@ public class Client {
     	execute = client.execute(readUrl );
     	String  content =EntityUtils.toString(execute.getEntity(), "utf-8");
     	System.out.println("doingRead-->content="+content);
+    	
     	return "";
     }
     public static void main(String[] args) throws Exception {
     	List<Teacher> teachers = DomTeach.getTeachers();
 		for (Teacher teacher : teachers) {
-			//if("622822198503054568".equals(teacher.getInputName())){
+			if("622822196703044525".equals(teacher.getInputName())){
 				Client client = new Client(teacher);
 				//	String getLoginNameResult = client.login();
 					String getLoginNameResult="{\"status\":200,\"data\":{\"inputType\":\"id_card_no\",\"oldLoginName\":\"\\u738b\\u6dd1\\u7434\",\"isOldUser\":1,\"reviewStatus\":\"110002\",\"userType\":\"002\"}}";
@@ -225,11 +278,22 @@ public class Client {
 							client.read(unRead[i][0],unRead[i][1]);
 							Thread.sleep(2*60*1000);
 						}
-						//读出内容
-						//client.readHistory();
+						
 					}
+					for(int k=1;k<=Client.readHistroyYema ;k++ ){
+						//读出内容
+						String [][]  read = client.readHistory(k);
+						int readHistoryNum = read.length;
+						for(int i =0;i<readHistoryNum;i++){
+							client.readDetails(read[i][0],read[i][1],read[i][2]);
+						}
+					}
+				    for(String str: Client.list){
+				    	System.out.println(str);
+				    }  
+					
 			}
-		//}
+		}
 		
 	}
 }
