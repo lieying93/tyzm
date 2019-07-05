@@ -226,7 +226,7 @@ public class Client {
     public String[][] unRead() throws Exception{
     	//每页20条记录,每次运行只读取首页的未读记录数,第一列是href地址,第二列是标题
     	
-    	String url = "http://rwsy.gsres.cn/wx/unreadhistory.htm";
+    	String url = "http://rwsy.gsres.cn/wx/unreadhistory.htm?year=2018";
     	HttpGet sLogin = new HttpGet(url);
     	execute = client.execute(sLogin );
     	String  content =EntityUtils.toString(execute.getEntity(), "utf-8");
@@ -245,7 +245,7 @@ public class Client {
     	return unRead;
     }
     public String read(String href,String title) throws Exception{
-    	String unReadHref = "http://rwsy.gsres.cn/wx/read.htm";
+    	String unReadHref = "http://rwsy.gsres.cn/wx/content.htm";
     	System.out.println(unReadHref+href.replace("content.htm", ""));
     	HttpGet readUrl = new HttpGet(unReadHref+href.replace("content.htm", ""));
     	execute = client.execute(readUrl );
@@ -266,7 +266,7 @@ public class Client {
 					JSONObject ticketData = client.getLoginTicket();
 					client.getSSOLogin(userInfo,ticketData);
 					//登录成功 
-					client.index();
+					client.index();	
 					//甘肃教学师范主页
 					client.gsjsxy(); 
 					//获取未读的内容
@@ -280,17 +280,17 @@ public class Client {
 						}
 						
 					}
-					for(int k=1;k<=Client.readHistroyYema ;k++ ){
-						//读出内容
-						String [][]  read = client.readHistory(k);
-						int readHistoryNum = read.length;
-						for(int i =0;i<readHistoryNum;i++){
-							client.readDetails(read[i][0],read[i][1],read[i][2]);
-						}
-					}
-				    for(String str: Client.list){
-				    	System.out.println(str);
-				    }  
+//					for(int k=1;k<=Client.readHistroyYema ;k++ ){
+//						//读出内容
+//						String [][]  read = client.readHistory(k);
+//						int readHistoryNum = read.length;
+//						for(int i =0;i<readHistoryNum;i++){
+//							client.readDetails(read[i][0],read[i][1],read[i][2]);
+//						}
+//					}
+//				    for(String str: Client.list){
+//				    	System.out.println(str);
+//				    }  
 					
 			}
 		}
