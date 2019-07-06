@@ -32,6 +32,7 @@ import org.jsoup.select.Elements;
 
 import com.gsres.entity.Teacher;
 import com.gsres.util.DomTeach;
+import com.gsres.util.ImagePreProcess;
 
 import net.sf.json.JSONObject;
 
@@ -40,6 +41,8 @@ public class Client {
     CloseableHttpClient client = HttpClients.createDefault();//实例化httpclient
     HttpResponse response = null;
     private static int readHistroyYema=1;
+    private String replyCodeImg="K:\\git_hub\\tyzm\\tyzm\\img\\code.jpg";
+    
     private static List<String> list = new ArrayList<String>();
 	public Client(Teacher teacher) {
 		super();
@@ -102,6 +105,32 @@ public class Client {
             }
         }
     }
+  private  String getCode(String codeUrl) throws InterruptedException {
+      HttpGet getVerifyCode = new HttpGet(codeUrl);//获取回复码
+      FileOutputStream fileOutputStream = null;
+      HttpResponse response;
+      String codeNum="";
+      try {
+          response = client.execute(getVerifyCode);//获取验证码
+          /*验证码写入文件,当前工程的根目录,保存为verifyCode.jped*/
+          fileOutputStream = new FileOutputStream(new File(replyCodeImg));
+          response.getEntity().writeTo(fileOutputStream);
+          codeNum = ImagePreProcess.getCodeName(replyCodeImg);
+      } catch (ClientProtocolException e) {
+          e.printStackTrace();
+      } catch (IOException e) {
+          e.printStackTrace();
+      } finally {
+          try {
+              fileOutputStream.close();
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+          
+      }
+      return codeNum;
+     
+  }
     public JSONObject parseGetLoginName(String result){
     	
     	JSONObject jsonObj = JSONObject.fromObject(result);
@@ -251,7 +280,40 @@ public class Client {
     	execute = client.execute(readUrl );
     	String  content =EntityUtils.toString(execute.getEntity(), "utf-8");
     	System.out.println("doingRead-->content="+content);
-    	
+    	Document doc = Jsoup.parse(content);
+    	Thread.sleep(2*60*1000);
+    	//回复码值
+    	String codeId ="";
+    	Elements liArray = doc.select("#myForm").select("input");
+     	for(int i=0;i<liArray.size();i++){
+     		if ("id".equals(liArray.get(i).attr("name")) ){
+     			System.out.println(liArray.get(i).attr("value"));
+     			codeId=liArray.get(i).attr("value");
+     		};
+     	}
+    	 Elements liArraySrc = doc.select("#iframe");
+    	 for(int i =0; i< liArraySrc.size();i++){
+     		System.out.println("阅读的src地址:"+liArraySrc.get(i).attr("src"));
+     	    String 	src=liArraySrc.get(i).attr("src");
+     		String codeUrl = src.substring(0,src.indexOf("content.html?rn") )+"code.jpg";
+     		
+     		String codeNum = getCode(codeUrl);
+     		replyCode(codeId,codeNum);
+     		
+     	}
+    	return "";
+    }
+    public String replyCode(String id,String codeNum) throws Exception{
+        HttpPost post = new HttpPost("http://rwsy.gsres.cn/wx/read.htm"); 
+        ArrayList<BasicNameValuePair> postData = new ArrayList<BasicNameValuePair>();
+        postData.add(new BasicNameValuePair("id", id));
+        postData.add(new BasicNameValuePair("page", "1"));
+        postData.add(new BasicNameValuePair("sid", ""));
+        postData.add(new BasicNameValuePair("courseNum", codeNum));
+        post.setEntity(new UrlEncodedFormEntity(postData));//捆绑参数
+        response = client.execute(post);//执行登陆行为
+        String  content  = EntityUtils.toString(response.getEntity(), "utf-8");
+    	System.out.println("回复响应内容"+content);
     	return "";
     }
     public static void main(String[] args) throws Exception {
@@ -276,7 +338,7 @@ public class Client {
 						int readNum = unRead.length;
 						for(int i =0;i<readNum;i++){
 							client.read(unRead[i][0],unRead[i][1]);
-							Thread.sleep(2*60*1000);
+							
 						}
 						
 					}

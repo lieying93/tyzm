@@ -1,10 +1,15 @@
 package com.gsres;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
+
+import com.LabInfo;
 
 import net.sf.json.JSONObject;
 
@@ -160,4 +165,39 @@ public class ClientTest {
     		System.out.println("Á´½Ó:"+liArray.get(i).select("a").attr("href"));
     	}
     }
+    @Test
+    public void ²âÊÔÊý×é(){
+    	System.out.println("hello world ");
+    	List<LabInfo> labinfos = new  ArrayList<LabInfo>();
+    	for (int i=1 ;i<=5 ;i++){
+    		LabInfo lab = new LabInfo("A"+i,"AA"+i);
+    		labinfos.add(lab);
+    	}
+    	String[][] s =new String[5][2];
+    	String value = "";
+    	String ss = "123";
+    	for (int i=0;i<labinfos.size();i++){
+    		value = value + "'"+labinfos.get(i).getKey()+"'"+","+"'"+labinfos.get(i).getValue()+"'"+",";
+    	}
+    	String sSql1 = "insert 000(r1,r2,r3,r4,r5,r6,r7,r8,r9,r10) values("
+    			+ "'"+s[0][0]+"',"
+    			+ "'"+s[0][1]+"',"
+    			+ "'"+s[1][0]+"',"
+    			+ "'"+s[1][1]+"',"
+    			+ "'"+s[2][0]+"',"
+    			+ "'"+s[2][1]+"',"
+    			+ "'"+s[3][0]+"',"
+    			+ "'"+s[3][1]+"',"
+    			+ "'"+s[4][0]+"',"
+    			+ "'"+s[4][1]+"'"
+    			+ ")";
+    	String sSql = "insert 000(r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,other) values("
+    			    +value+"'"+ss+"'"
+    			+ ")";
+      System.out.println("sSql="+sSql);
+    }
+    
 }
+
+
+

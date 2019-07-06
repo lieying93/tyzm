@@ -3,6 +3,7 @@ package com.gsres;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import org.jdesktop.swingx.util.OS;
 public class OCR {
     private final String LANG_OPTION = "-l"; // 英文字母小写l，并非数字1
     private final String EOL = System.getProperty("line.separator");
-    private String tessPath = "D:\\Program Files (x86)\\Tesseract-OCR";//Tesseract安装路径
+    private String tessPath = "H:\\Tesseract-OCR";//Tesseract安装路径
 
     public String recognizeText(File imageFile, String imageFormat)
             throws Exception {
@@ -24,7 +25,7 @@ public class OCR {
         } else if (OS.isLinux()) {
             cmd.add("tesseract");
         } else {
-            cmd.add(tessPath + "//tesseract");
+            cmd.add(tessPath + "\\tesseract");
         }
         cmd.add("");
         cmd.add(outputFile.getName());
@@ -72,4 +73,19 @@ public class OCR {
         new File(outputFile.getAbsolutePath() + ".txt").delete();
         return strB.toString();
     }
+    public static void main(String[] args) throws Exception {
+    
+    
+    			//输入图片地址
+    			String path = "H:\\code.jgp";   
+    	        try {   
+    	            String valCode = new OCR().recognizeText(new File(path), "jpeg");   
+    	            System.out.println("saf"+valCode);   
+    	        } catch (IOException e) {   
+    	            e.printStackTrace();   
+    	        } catch (Exception e) {
+    				e.printStackTrace();
+    			}    
+  
+	}
 }
